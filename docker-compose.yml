@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  pipeline:
+    build: .
+    container_name: weather-pipeline
+    restart: unless-stopped
+
+    environment:
+      # ── Location (defaults to Paris) ──────────────────────────────────────
+      LATITUDE:          ${LATITUDE:-48.8566}
+      LONGITUDE:         ${LONGITUDE:-2.3522}
+
+      # ── Alert thresholds ──────────────────────────────────────────────────
+      HEAT_THRESHOLD:    ${HEAT_THRESHOLD:-35.0}   # °C — triggers HEAT_ALERT
+      FREEZE_THRESHOLD:  ${FREEZE_THRESHOLD:-0.0}  # °C — triggers FREEZE_ALERT
+      SPIKE_DELTA:       ${SPIKE_DELTA:-5.0}        # °C change — triggers SPIKE_ALERT
+
+      # ── Webhook (set your Webhook.site URL here or in .env) ───────────────
+      WEBHOOK_URL:       ${WEBHOOK_URL:-}
+
+      # ── Scheduling ────────────────────────────────────────────────────────
+      POLL_INTERVAL:     ${POLL_INTERVAL:-600}      # seconds between fetches
+
+      # ── Storage ───────────────────────────────────────────────────────────
+      DB_PATH:           /data/pipeline.db
+
+    volumes:
+      - pipeline_data:/data
+
+    # Expose nothing externally; the container is self-contained
+
+volumes:
+  pipeline_data:
+    driver: local
